@@ -1,9 +1,12 @@
-<!DOCTYPE html>
+                        <div class="detail-row">
+                            <span>자동차대출 월상환액</span>
+                            <span id="detail-auto-payment">0만원</span>
+                        </div><!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>스트레스 DSR 3단계 대출계산기</title>
+    <title>스트레스 DSR 3단계 대출계산기 (자동차 포함)</title>
     <style>
         * {
             margin: 0;
@@ -19,7 +22,7 @@
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             background: white;
             border-radius: 20px;
@@ -53,22 +56,42 @@
         .input-section {
             padding: 40px;
             background: #f8f9fa;
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         .result-section {
             padding: 40px;
             background: white;
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         .section-title {
             font-size: 1.5rem;
             color: #333;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             font-weight: 600;
         }
 
+        .subsection {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        .subsection h3 {
+            color: #555;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            border-bottom: 2px solid #e1e5e9;
+            padding-bottom: 8px;
+        }
+
         .form-group {
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
 
         .form-group label {
@@ -76,6 +99,7 @@
             margin-bottom: 8px;
             font-weight: 500;
             color: #555;
+            font-size: 0.95rem;
         }
 
         .form-group input, .form-group select {
@@ -97,11 +121,46 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            margin-bottom: 10px;
         }
 
         .checkbox-group input[type="checkbox"] {
             width: auto;
             margin: 0;
+        }
+
+        .toggle-section {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .income-toggle {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .income-toggle label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            padding: 10px 20px;
+            background: white;
+            border-radius: 25px;
+            border: 2px solid #e1e5e9;
+            transition: all 0.3s ease;
+        }
+
+        .income-toggle input[type="radio"]:checked + span {
+            background: #667eea;
+            color: white;
+        }
+
+        .income-toggle input[type="radio"] {
+            display: none;
         }
 
         .calculate-btn {
@@ -115,6 +174,7 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
+            margin-top: 20px;
         }
 
         .calculate-btn:hover {
@@ -195,6 +255,20 @@
             border-left: 4px solid #17a2b8;
         }
 
+        .success-box {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #28a745;
+        }
+
+        .auto-section {
+            background: #fff8e1;
+            border-left: 4px solid #ffc107;
+        }
+
         @media (max-width: 768px) {
             .main-content {
                 grid-template-columns: 1fr;
@@ -206,6 +280,11 @@
             
             .input-section, .result-section {
                 padding: 20px;
+                max-height: none;
+            }
+
+            .income-toggle {
+                flex-direction: column;
             }
         }
     </style>
@@ -213,85 +292,125 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🏠 스트레스 DSR 3단계 대출계산기</h1>
-            <p>2025년 7월 1일 시행 | 스트레스 금리 1.5%p 전면 적용</p>
+            <h1>🏠🚗 스트레스 DSR 3단계 대출계산기</h1>
+            <p>2025년 7월 1일 시행 | 자동차 대출·렌탈·리스 포함</p>
         </div>
 
         <div class="main-content">
             <div class="input-section">
-                <h2 class="section-title">📊 기본 정보 입력</h2>
+                <h2 class="section-title">📊 소득 정보</h2>
                 
-                <div class="form-group">
-                    <label for="income">연소득 (세전, 만원)</label>
-                    <input type="number" id="income" placeholder="예: 5000" min="0">
+                <div class="subsection">
+                    <div class="income-toggle">
+                        <label>
+                            <input type="radio" name="income-type" value="gross" checked>
+                            <span>세전 소득</span>
+                        </label>
+                        <label>
+                            <input type="radio" name="income-type" value="net">
+                            <span>실수령액</span>
+                        </label>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="income" id="income-label">연소득 (세전, 만원)</label>
+                        <input type="number" id="income" placeholder="예: 5000" min="0">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="region">주택 소재지</label>
+                        <select id="region">
+                            <option value="metropolitan">수도권 (서울/인천/경기)</option>
+                            <option value="non-metropolitan">비수도권 (지방)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="financial-sector">주 거래 금융기관</label>
+                        <select id="financial-sector">
+                            <option value="1st">1금융권 (은행)</option>
+                            <option value="2nd">2금융권 (저축은행/상호금융 등)</option>
+                        </select>
+                    </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="region">주택 소재지</label>
-                    <select id="region">
-                        <option value="metropolitan">수도권 (서울/인천/경기)</option>
-                        <option value="non-metropolitan">비수도권 (지방)</option>
-                    </select>
+                <h2 class="section-title">🏠 주택관련 대출</h2>
+                
+                <div class="subsection">
+                    <div class="form-group">
+                        <label for="existing-mortgage">기존 주택담보대출 (만원)</label>
+                        <input type="number" id="existing-mortgage" placeholder="0" min="0">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="existing-credit">기존 신용대출 (만원)</label>
+                        <input type="number" id="existing-credit" placeholder="0" min="0">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="existing-card">기존 카드론/현금서비스 (만원)</label>
+                        <input type="number" id="existing-card" placeholder="0" min="0">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="existing-other">기존 기타대출 (만원)</label>
+                        <input type="number" id="existing-other" placeholder="0" min="0">
+                    </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="financial-sector">금융기관 구분</label>
-                    <select id="financial-sector">
-                        <option value="1st">1금융권 (은행)</option>
-                        <option value="2nd">2금융권 (저축은행/상호금융 등)</option>
-                    </select>
+                <h2 class="section-title">🚗 자동차 관련</h2>
+                
+                <div class="subsection auto-section">
+                    <h3>자동차 대출</h3>
+                    <div class="form-group">
+                        <label for="auto-loan">기존 자동차 대출 (만원)</label>
+                        <input type="number" id="auto-loan" placeholder="0" min="0">
+                    </div>
                 </div>
 
-                <h3 style="margin: 30px 0 20px 0; color: #333;">기존 대출 현황</h3>
-
-                <div class="form-group">
-                    <label for="existing-mortgage">기존 주택담보대출 (만원)</label>
-                    <input type="number" id="existing-mortgage" placeholder="0" min="0">
+                <div class="subsection auto-section">
+                    <h3>장기렌탈 / 리스 (DSR 포함)</h3>
+                    <div class="form-group">
+                        <label for="rental-monthly">월 렌탈/리스료 (만원)</label>
+                        <input type="number" id="rental-monthly" placeholder="0" min="0" step="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label for="rental-term">잔여 계약기간 (개월)</label>
+                        <input type="number" id="rental-term" placeholder="0" min="0">
+                    </div>
+                    <small style="color: #666;">※ DSR 3단계부터 장기렌탈도 DSR 계산에 포함됩니다</small>
                 </div>
 
-                <div class="form-group">
-                    <label for="existing-credit">기존 신용대출 (만원)</label>
-                    <input type="number" id="existing-credit" placeholder="0" min="0">
+                <h2 class="section-title">💰 대출 조건</h2>
+                
+                <div class="subsection">
+                    <div class="form-group">
+                        <label for="interest-rate">기준 금리 (%)</label>
+                        <input type="number" id="interest-rate" placeholder="4.5" step="0.1" min="0" value="4.5">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="loan-term">대출 기간 (년)</label>
+                        <input type="number" id="loan-term" placeholder="30" min="1" max="50" value="30">
+                    </div>
+
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="policy-loan">
+                        <label for="policy-loan">정책모기지 이용 (보금자리론/디딤돌 등)</label>
+                    </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="existing-card">기존 카드론/현금서비스 (만원)</label>
-                    <input type="number" id="existing-card" placeholder="0" min="0">
-                </div>
-
-                <div class="form-group">
-                    <label for="existing-other">기존 기타대출 (만원)</label>
-                    <input type="number" id="existing-other" placeholder="0" min="0">
-                </div>
-
-                <h3 style="margin: 30px 0 20px 0; color: #333;">대출 조건</h3>
-
-                <div class="form-group">
-                    <label for="interest-rate">기준 금리 (%)</label>
-                    <input type="number" id="interest-rate" placeholder="4.5" step="0.1" min="0">
-                </div>
-
-                <div class="form-group">
-                    <label for="loan-term">대출 기간 (년)</label>
-                    <input type="number" id="loan-term" placeholder="30" min="1" max="50">
-                </div>
-
-                <div class="form-group checkbox-group">
-                    <input type="checkbox" id="policy-loan">
-                    <label for="policy-loan">정책모기지 이용 (보금자리론/디딤돌 등)</label>
-                </div>
-
-                <button class="calculate-btn" onclick="calculateLoan()">💰 대출한도 계산하기</button>
+                <button class="calculate-btn" onclick="calculateLoan()">💰 종합 대출한도 계산하기</button>
             </div>
 
             <div class="result-section">
                 <h2 class="section-title">📈 계산 결과</h2>
 
                 <div class="info-box">
-                    <strong>스트레스 DSR 3단계 주요 변경사항:</strong><br>
-                    • 카드론/현금서비스 신규 포함<br>
-                    • 스트레스 금리 1.5%p 전면 적용<br>
-                    • 2금융권까지 전면 확대
+                    <strong>🚗 DSR 3단계 장기렌탈 포함:</strong><br>
+                    • 자동차 대출: DSR 계산 포함<br>
+                    • 장기렌탈/리스: DSR 계산 포함 (3단계부터)<br>
+                    • 모든 금융부채가 DSR에 반영됨
                 </div>
 
                 <div id="results" style="display: none;">
@@ -302,15 +421,31 @@
                     </div>
 
                     <div class="detail-card">
-                        <h4>📊 DSR 상세 내역</h4>
+                        <h4>📊 소득 정보</h4>
+                        <div class="detail-row">
+                            <span>입력 소득</span>
+                            <span id="input-income">0만원</span>
+                        </div>
                         <div class="detail-row">
                             <span>연소득 (세전)</span>
-                            <span id="detail-income">0만원</span>
+                            <span id="gross-income">0만원</span>
+                        </div>
+                        <div class="detail-row">
+                            <span>연소득 (세후)</span>
+                            <span id="net-income">0만원</span>
                         </div>
                         <div class="detail-row">
                             <span>월소득 (세전)</span>
-                            <span id="detail-monthly-income">0만원</span>
+                            <span id="monthly-gross">0만원</span>
                         </div>
+                        <div class="detail-row">
+                            <span>월소득 (세후)</span>
+                            <span id="monthly-net">0만원</span>
+                        </div>
+                    </div>
+
+                    <div class="detail-card">
+                        <h4>📊 DSR 상세 내역</h4>
                         <div class="detail-row">
                             <span>적용 DSR 한도</span>
                             <span id="detail-dsr-limit">40%</span>
@@ -324,24 +459,36 @@
                             <span id="detail-existing-payment">0만원</span>
                         </div>
                         <div class="detail-row">
+                            <span>장기렌탈/리스 월납입</span>
+                            <span id="detail-rental-payment">0만원</span>
+                        </div>
+                        <div class="detail-row">
                             <span>신규 대출 가능 월상환액</span>
                             <span id="detail-new-payment">0만원</span>
                         </div>
                     </div>
 
                     <div class="detail-card">
-                        <h4>💰 세후 소득 및 가처분 소득</h4>
+                        <h4>💰 실제 가처분 소득 분석</h4>
                         <div class="detail-row">
-                            <span>월소득 (세후 추정)</span>
-                            <span id="after-tax-income">0만원</span>
+                            <span>월소득 (세후)</span>
+                            <span id="after-tax-monthly">0만원</span>
                         </div>
                         <div class="detail-row">
-                            <span>총 월상환액</span>
-                            <span id="total-monthly-payment">0만원</span>
+                            <span>총 월상환액 (대출)</span>
+                            <span id="total-loan-payment">0만원</span>
+                        </div>
+                        <div class="detail-row">
+                            <span>자동차 월납입액</span>
+                            <span id="auto-monthly-payment">0만원</span>
+                        </div>
+                        <div class="detail-row">
+                            <span>총 월지출 (대출+자동차)</span>
+                            <span id="total-monthly-expense">0만원</span>
                         </div>
                         <div class="detail-row">
                             <span>실제 가처분 소득</span>
-                            <span id="disposable-income">0만원</span>
+                            <span id="real-disposable-income">0만원</span>
                         </div>
                         <div class="detail-row">
                             <span>가처분소득/세후소득 비율</span>
@@ -379,22 +526,156 @@
     </div>
 
     <script>
+        // 2025년 실수령액 표 데이터
+        const salaryData = [
+            {salary: 1000, net: 771.033}, {salary: 1100, net: 847.286}, {salary: 1200, net: 923.500},
+            {salary: 1300, net: 998.863}, {salary: 1400, net: 1073.736}, {salary: 1500, net: 1148.580},
+            {salary: 1600, net: 1223.463}, {salary: 1700, net: 1297.826}, {salary: 1800, net: 1372.040},
+            {salary: 1900, net: 1446.313}, {salary: 2000, net: 1520.566}, {salary: 2100, net: 1594.790},
+            {salary: 2200, net: 1669.043}, {salary: 2300, net: 1743.296}, {salary: 2400, net: 1817.310},
+            {salary: 2500, net: 1890.463}, {salary: 2600, net: 1963.596}, {salary: 2700, net: 2036.710},
+            {salary: 2800, net: 2109.853}, {salary: 2900, net: 2179.916}, {salary: 3000, net: 2248.340},
+            {salary: 3100, net: 2316.813}, {salary: 3200, net: 2384.896}, {salary: 3300, net: 2451.470},
+            {salary: 3400, net: 2515.923}, {salary: 3500, net: 2580.346}, {salary: 3600, net: 2656.670},
+            {salary: 3700, net: 2723.873}, {salary: 3800, net: 2788.286}, {salary: 3900, net: 2852.700},
+            {salary: 4000, net: 2917.143}, {salary: 4100, net: 2981.576}, {salary: 4200, net: 3045.970},
+            {salary: 4300, net: 3110.423}, {salary: 4400, net: 3174.836}, {salary: 4500, net: 3239.250},
+            {salary: 4600, net: 3303.693}, {salary: 4700, net: 3362.136}, {salary: 4800, net: 3425.500},
+            {salary: 4900, net: 3488.923}, {salary: 5000, net: 3552.316}, {salary: 5100, net: 3615.690},
+            {salary: 5200, net: 3679.103}, {salary: 5300, net: 3742.506}, {salary: 5400, net: 3805.860},
+            {salary: 5500, net: 3869.273}, {salary: 5600, net: 3932.666}, {salary: 5700, net: 3993.290},
+            {salary: 5800, net: 4056.723}, {salary: 5900, net: 4120.116}, {salary: 6000, net: 4183.470},
+            {salary: 6100, net: 4246.893}, {salary: 6200, net: 4310.286}, {salary: 6300, net: 4373.660},
+            {salary: 6400, net: 4437.073}, {salary: 6500, net: 4500.476}, {salary: 6600, net: 4562.980},
+            {salary: 6700, net: 4618.693}, {salary: 6800, net: 4674.376}, {salary: 6900, net: 4730.080},
+            {salary: 7000, net: 4785.823}, {salary: 7100, net: 4841.546}, {salary: 7200, net: 4869.760},
+            {salary: 7300, net: 4925.283}, {salary: 7400, net: 4980.786}, {salary: 7500, net: 5036.270},
+            {salary: 7600, net: 5091.793}, {salary: 7700, net: 5147.306}, {salary: 7800, net: 5202.780},
+            {salary: 7900, net: 5258.303}, {salary: 8000, net: 5313.816}, {salary: 8100, net: 5369.290},
+            {salary: 8200, net: 5424.823}, {salary: 8300, net: 5480.326}, {salary: 8400, net: 5535.820},
+            {salary: 8500, net: 5591.343}, {salary: 8600, net: 5646.836}, {salary: 8700, net: 5702.330},
+            {salary: 8800, net: 5757.853}, {salary: 8900, net: 5813.366}, {salary: 9000, net: 5868.840},
+            {salary: 9100, net: 5924.353}, {salary: 9200, net: 5979.866}, {salary: 9300, net: 6035.350},
+            {salary: 9400, net: 6090.883}, {salary: 9500, net: 6146.386}, {salary: 9600, net: 6201.850},
+            {salary: 9700, net: 6257.383}, {salary: 9800, net: 6312.886}, {salary: 9900, net: 6368.380},
+            {salary: 10000, net: 6423.903}, {salary: 10100, net: 6479.406}, {salary: 10200, net: 6534.350},
+            {salary: 10300, net: 6589.213}, {salary: 10400, net: 6644.076}, {salary: 10500, net: 6698.900},
+            {salary: 10600, net: 6753.773}, {salary: 10700, net: 6808.606}, {salary: 10800, net: 6863.420},
+            {salary: 10900, net: 6918.293}, {salary: 11000, net: 6968.006}, {salary: 11100, net: 7013.020},
+            {salary: 11200, net: 7058.073}, {salary: 11300, net: 7103.096}, {salary: 11400, net: 7148.100},
+            {salary: 11500, net: 7193.163}, {salary: 11600, net: 7238.206}, {salary: 11700, net: 7283.220},
+            {salary: 11800, net: 7328.263}, {salary: 11900, net: 7373.296}, {salary: 12000, net: 7418.310},
+            {salary: 12100, net: 7463.363}, {salary: 12200, net: 7389.566}, {salary: 12300, net: 7434.420},
+            {salary: 12400, net: 7479.303}, {salary: 12500, net: 7524.186}, {salary: 12600, net: 7569.030},
+            {salary: 12700, net: 7613.933}, {salary: 12800, net: 7658.806}, {salary: 12900, net: 7703.650},
+            {salary: 13000, net: 7748.553}, {salary: 13100, net: 7793.426}, {salary: 13200, net: 7838.270},
+            {salary: 13300, net: 7883.163}, {salary: 13400, net: 7928.036}, {salary: 13500, net: 7972.900},
+            {salary: 13600, net: 8017.783}, {salary: 13700, net: 8062.666}, {salary: 13800, net: 8107.510},
+            {salary: 13900, net: 8152.403}, {salary: 14000, net: 8197.266}, {salary: 14100, net: 8242.130},
+            {salary: 14200, net: 8287.033}, {salary: 14300, net: 8331.906}, {salary: 14400, net: 8376.740},
+            {salary: 14500, net: 8421.633}, {salary: 14600, net: 8466.516}, {salary: 14700, net: 8511.370},
+            {salary: 14800, net: 8556.263}, {salary: 14900, net: 8601.146}, {salary: 15000, net: 8645.980}
+        ];
+
+        // 소득 유형 변경 시 라벨 업데이트
+        document.querySelectorAll('input[name="income-type"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const label = document.getElementById('income-label');
+                if (this.value === 'gross') {
+                    label.textContent = '연소득 (세전, 만원)';
+                } else {
+                    label.textContent = '실수령액 (연간, 만원)';
+                }
+                document.getElementById('income').placeholder = this.value === 'gross' ? '예: 5000' : '예: 3552';
+            });
+        });
+
+        // 선형보간법으로 실수령액 계산
+        function calculateNetFromGross(grossIncome) {
+            if (grossIncome <= 1000) return grossIncome * 0.771033;
+            if (grossIncome >= 15000) {
+                // 15000만원 이상은 세율 구간별로 더 정확하게 계산
+                if (grossIncome <= 20000) {
+                    return grossIncome * 0.576; // 약 42.4% 세율
+                } else if (grossIncome <= 30000) {
+                    return grossIncome * 0.55; // 약 45% 세율  
+                } else {
+                    return grossIncome * 0.52; // 약 48% 세율
+                }
+            }
+
+            // 선형보간
+            for (let i = 0; i < salaryData.length - 1; i++) {
+                if (grossIncome >= salaryData[i].salary && grossIncome <= salaryData[i + 1].salary) {
+                    const x1 = salaryData[i].salary;
+                    const y1 = salaryData[i].net;
+                    const x2 = salaryData[i + 1].salary;
+                    const y2 = salaryData[i + 1].net;
+                    
+                    return y1 + (y2 - y1) * (grossIncome - x1) / (x2 - x1);
+                }
+            }
+            return grossIncome * 0.57; // 기본 추정치
+        }
+
+        // 역산으로 세전소득 계산
+        function calculateGrossFromNet(netIncome) {
+            if (netIncome <= 771.033) return netIncome / 0.771033;
+            if (netIncome >= 8645.980) {
+                // 고소득 구간별 역산
+                if (netIncome <= 11520) { // 2만만원 추정
+                    return netIncome / 0.576;
+                } else if (netIncome <= 16500) { // 3만만원 추정
+                    return netIncome / 0.55;
+                } else {
+                    return netIncome / 0.52;
+                }
+            }
+
+            // 선형보간으로 역산
+            for (let i = 0; i < salaryData.length - 1; i++) {
+                if (netIncome >= salaryData[i].net && netIncome <= salaryData[i + 1].net) {
+                    const x1 = salaryData[i].net;
+                    const y1 = salaryData[i].salary;
+                    const x2 = salaryData[i + 1].net;
+                    const y2 = salaryData[i + 1].salary;
+                    
+                    return y1 + (y2 - y1) * (netIncome - x1) / (x2 - x1);
+                }
+            }
+            return netIncome / 0.57; // 고소득 구간 기본 추정치
+        }
+
         function calculateLoan() {
             // 입력값 가져오기
-            const income = parseFloat(document.getElementById('income').value) || 0;
+            const incomeType = document.querySelector('input[name="income-type"]:checked').value;
+            const inputIncome = parseFloat(document.getElementById('income').value) || 0;
             const region = document.getElementById('region').value;
             const financialSector = document.getElementById('financial-sector').value;
             const existingMortgage = parseFloat(document.getElementById('existing-mortgage').value) || 0;
             const existingCredit = parseFloat(document.getElementById('existing-credit').value) || 0;
             const existingCard = parseFloat(document.getElementById('existing-card').value) || 0;
             const existingOther = parseFloat(document.getElementById('existing-other').value) || 0;
+            const autoLoan = parseFloat(document.getElementById('auto-loan').value) || 0;
+            const rentalMonthly = parseFloat(document.getElementById('rental-monthly').value) || 0;
+            const rentalTerm = parseFloat(document.getElementById('rental-term').value) || 0;
             const interestRate = parseFloat(document.getElementById('interest-rate').value) || 4.5;
             const loanTerm = parseFloat(document.getElementById('loan-term').value) || 30;
             const isPolicyLoan = document.getElementById('policy-loan').checked;
 
-            if (income <= 0) {
-                alert('연소득을 입력해주세요.');
+            if (inputIncome <= 0) {
+                alert('소득을 입력해주세요.');
                 return;
+            }
+
+            // 세전/세후 소득 계산
+            let grossIncome, netIncome;
+            if (incomeType === 'gross') {
+                grossIncome = inputIncome;
+                netIncome = calculateNetFromGross(grossIncome);
+            } else {
+                netIncome = inputIncome;
+                grossIncome = calculateGrossFromNet(netIncome);
             }
 
             // DSR 한도 설정
@@ -408,14 +689,16 @@
                 stressRate = 0.75; // 비수도권 0.75%p (12월 31일까지)
             }
 
-            // 월소득 계산
-            const monthlyIncome = income / 12;
+            // 월소득 계산 (세전 기준)
+            const monthlyGrossIncome = grossIncome / 12;
+            const monthlyNetIncome = netIncome / 12;
 
-            // 월 상환한도 계산
-            const monthlyLimit = monthlyIncome * dsrLimit;
+            // 월 상환한도 계산 (세전 소득 기준)
+            const monthlyLimit = monthlyGrossIncome * dsrLimit;
 
-            // 기존 대출 월상환액 계산
-            const existingMortgagePayment = existingMortgage > 0 ? calculateMonthlyPayment(existingMortgage * 10000, interestRate + stressRate, loanTerm) : 0;
+            // 기존 대출 월상환액 계산 (스트레스 금리 적용)
+            const existingMortgagePayment = existingMortgage > 0 ? 
+                calculateMonthlyPayment(existingMortgage * 10000, interestRate + stressRate, loanTerm) : 0;
             
             // 신용대출은 1억 초과분에만 스트레스 금리 적용
             let existingCreditPayment = 0;
@@ -430,48 +713,78 @@
                 }
             }
 
-            const existingCardPayment = existingCard > 0 ? calculateMonthlyPayment(existingCard * 10000, interestRate + stressRate, 3) : 0;
-            const existingOtherPayment = existingOther > 0 ? calculateMonthlyPayment(existingOther * 10000, interestRate + stressRate, 5) : 0;
+            const existingCardPayment = existingCard > 0 ? 
+                calculateMonthlyPayment(existingCard * 10000, interestRate + stressRate, 3) : 0;
+            const existingOtherPayment = existingOther > 0 ? 
+                calculateMonthlyPayment(existingOther * 10000, interestRate + stressRate, 5) : 0;
 
-            const totalExistingPayment = existingMortgagePayment + existingCreditPayment + existingCardPayment + existingOtherPayment;
+            // 자동차 대출 월상환액 (스트레스 금리 적용)
+            const autoLoanPayment = autoLoan > 0 ? 
+                calculateMonthlyPayment(autoLoan * 10000, interestRate + stressRate, 5) : 0;
+
+            // 렌탈/리스 월납입액도 DSR에 포함 (DSR 3단계)
+            const rentalPayment = rentalMonthly;
+
+            // DSR 계산에 포함되는 월상환액 (자동차 대출 + 렌탈/리스 모두 포함)
+            const totalExistingPaymentForDSR = existingMortgagePayment + existingCreditPayment + 
+                                             existingCardPayment + existingOtherPayment + 
+                                             autoLoanPayment + rentalPayment;
 
             // 신규 대출 가능 월상환액
-            const newPaymentCapacity = Math.max(0, monthlyLimit - totalExistingPayment);
+            const newPaymentCapacity = Math.max(0, monthlyLimit - totalExistingPaymentForDSR);
 
             // 신규 대출 가능 금액 계산
             const appliedRate = isPolicyLoan ? interestRate : interestRate + stressRate;
             const maxLoanAmount = newPaymentCapacity > 0 ? 
                 calculateLoanAmount(newPaymentCapacity, appliedRate, loanTerm) : 0;
 
-            // 세후 소득 추정 (간이세액표 기준)
-            const afterTaxIncome = calculateAfterTaxIncome(income);
-            const monthlyAfterTaxIncome = afterTaxIncome / 12;
+            // 실제 월상환액 계산 (실제 금리 기준)
+            const actualMortgagePayment = existingMortgage > 0 ? 
+                calculateMonthlyPayment(existingMortgage * 10000, interestRate, loanTerm) : 0;
+            const actualCreditPayment = existingCredit > 0 ? 
+                calculateMonthlyPayment(existingCredit * 10000, interestRate, 5) : 0;
+            const actualCardPayment = existingCard > 0 ? 
+                calculateMonthlyPayment(existingCard * 10000, interestRate, 3) : 0;
+            const actualOtherPayment = existingOther > 0 ? 
+                calculateMonthlyPayment(existingOther * 10000, interestRate, 5) : 0;
+            const actualAutoLoanPayment = autoLoan > 0 ? 
+                calculateMonthlyPayment(autoLoan * 10000, interestRate, 5) : 0;
+            const actualNewPayment = maxLoanAmount > 0 ? 
+                calculateMonthlyPayment(maxLoanAmount, interestRate, loanTerm) : 0;
 
-            // 총 월상환액 (실제 금리 기준)
-            const actualMortgagePayment = existingMortgage > 0 ? calculateMonthlyPayment(existingMortgage * 10000, interestRate, loanTerm) : 0;
-            const actualCreditPayment = existingCredit > 0 ? calculateMonthlyPayment(existingCredit * 10000, interestRate, 5) : 0;
-            const actualCardPayment = existingCard > 0 ? calculateMonthlyPayment(existingCard * 10000, interestRate, 3) : 0;
-            const actualOtherPayment = existingOther > 0 ? calculateMonthlyPayment(existingOther * 10000, interestRate, 5) : 0;
-            const actualNewPayment = maxLoanAmount > 0 ? calculateMonthlyPayment(maxLoanAmount, interestRate, loanTerm) : 0;
+            // 총 대출 월상환액
+            const totalLoanPayment = actualMortgagePayment + actualCreditPayment + actualCardPayment + 
+                                   actualOtherPayment + actualAutoLoanPayment + actualNewPayment;
 
-            const totalActualPayment = actualMortgagePayment + actualCreditPayment + actualCardPayment + actualOtherPayment + actualNewPayment;
+            // 총 자동차 관련 월납입액
+            const totalAutoPayment = actualAutoLoanPayment + rentalPayment;
 
-            // 가처분 소득
-            const disposableIncome = monthlyAfterTaxIncome - totalActualPayment;
-            const disposableRatio = monthlyAfterTaxIncome > 0 ? (disposableIncome / monthlyAfterTaxIncome * 100) : 0;
+            // 총 월지출 (대출 + 자동차) - 렌탈은 이미 대출에 포함되어 있음
+            const totalMonthlyExpense = totalLoanPayment + rentalPayment;
+
+            // 실제 가처분 소득 (세후 소득 - 총 월지출)
+            const realDisposableIncome = monthlyNetIncome - totalMonthlyExpense;
+            const disposableRatio = monthlyNetIncome > 0 ? (realDisposableIncome / monthlyNetIncome * 100) : 0;
 
             // 결과 표시
             displayResults({
+                inputIncome: inputIncome,
+                incomeType: incomeType,
+                grossIncome: grossIncome,
+                netIncome: netIncome,
+                monthlyGrossIncome: monthlyGrossIncome,
+                monthlyNetIncome: monthlyNetIncome,
                 maxLoan: maxLoanAmount,
-                income: income,
-                monthlyIncome: monthlyIncome,
                 dsrLimit: dsrLimit,
                 monthlyLimit: monthlyLimit,
-                totalExistingPayment: totalExistingPayment,
+                totalExistingPaymentForDSR: totalExistingPaymentForDSR,
+                autoLoanPayment: autoLoanPayment,
+                rentalPayment: rentalPayment,
+                totalAutoPayment: totalAutoPayment,
                 newPaymentCapacity: newPaymentCapacity,
-                afterTaxIncome: monthlyAfterTaxIncome,
-                totalActualPayment: totalActualPayment,
-                disposableIncome: disposableIncome,
+                totalLoanPayment: totalLoanPayment,
+                totalMonthlyExpense: totalMonthlyExpense,
+                realDisposableIncome: realDisposableIncome,
                 disposableRatio: disposableRatio,
                 baseRate: interestRate,
                 stressRate: stressRate,
@@ -510,22 +823,6 @@
             return loanAmount;
         }
 
-        function calculateAfterTaxIncome(annualIncome) {
-            // 간이세액표 기준 세후소득 추정 (근사치)
-            let taxRate;
-            if (annualIncome <= 1200) taxRate = 0.06;
-            else if (annualIncome <= 4600) taxRate = 0.15;
-            else if (annualIncome <= 8800) taxRate = 0.24;
-            else if (annualIncome <= 15000) taxRate = 0.35;
-            else if (annualIncome <= 30000) taxRate = 0.38;
-            else if (annualIncome <= 50000) taxRate = 0.40;
-            else taxRate = 0.42;
-
-            // 국민연금, 건강보험, 고용보험 등 사회보험료 약 9% 추가 차감
-            const totalDeductionRate = taxRate + 0.09;
-            return annualIncome * (1 - totalDeductionRate);
-        }
-
         function displayResults(data) {
             document.getElementById('results').style.display = 'block';
             document.getElementById('no-results').style.display = 'none';
@@ -533,18 +830,28 @@
             // 대출한도 표시
             document.getElementById('max-loan').textContent = formatNumber(Math.round(data.maxLoan)) + '원';
 
-            // 상세 내역 표시
-            document.getElementById('detail-income').textContent = formatNumber(data.income) + '만원';
-            document.getElementById('detail-monthly-income').textContent = formatNumber(Math.round(data.monthlyIncome)) + '만원';
+            // 소득 정보 표시
+            document.getElementById('input-income').textContent = 
+                formatNumber(data.inputIncome) + '만원 (' + (data.incomeType === 'gross' ? '세전' : '실수령') + ')';
+            document.getElementById('gross-income').textContent = formatNumber(Math.round(data.grossIncome)) + '만원';
+            document.getElementById('net-income').textContent = formatNumber(Math.round(data.netIncome)) + '만원';
+            document.getElementById('monthly-gross').textContent = formatNumber(Math.round(data.monthlyGrossIncome)) + '만원';
+            document.getElementById('monthly-net').textContent = formatNumber(Math.round(data.monthlyNetIncome)) + '만원';
+
+            // DSR 상세 내역 표시
             document.getElementById('detail-dsr-limit').textContent = (data.dsrLimit * 100) + '%';
             document.getElementById('detail-monthly-limit').textContent = formatNumber(Math.round(data.monthlyLimit)) + '만원';
-            document.getElementById('detail-existing-payment').textContent = formatNumber(Math.round(data.totalExistingPayment)) + '만원';
+            document.getElementById('detail-existing-payment').textContent = formatNumber(Math.round(data.totalExistingPaymentForDSR - data.autoLoanPayment - data.rentalPayment)) + '만원';
+            document.getElementById('detail-auto-payment').textContent = formatNumber(Math.round(data.autoLoanPayment)) + '만원';
+            document.getElementById('detail-rental-payment').textContent = formatNumber(Math.round(data.rentalPayment)) + '만원';
             document.getElementById('detail-new-payment').textContent = formatNumber(Math.round(data.newPaymentCapacity)) + '만원';
 
-            // 세후 소득 정보
-            document.getElementById('after-tax-income').textContent = formatNumber(Math.round(data.afterTaxIncome)) + '만원';
-            document.getElementById('total-monthly-payment').textContent = formatNumber(Math.round(data.totalActualPayment)) + '만원';
-            document.getElementById('disposable-income').textContent = formatNumber(Math.round(data.disposableIncome)) + '만원';
+            // 실제 가처분 소득 정보
+            document.getElementById('after-tax-monthly').textContent = formatNumber(Math.round(data.monthlyNetIncome)) + '만원';
+            document.getElementById('total-loan-payment').textContent = formatNumber(Math.round(data.totalLoanPayment)) + '만원';
+            document.getElementById('auto-monthly-payment').textContent = formatNumber(Math.round(data.totalAutoPayment)) + '만원';
+            document.getElementById('total-monthly-expense').textContent = formatNumber(Math.round(data.totalMonthlyExpense)) + '만원';
+            document.getElementById('real-disposable-income').textContent = formatNumber(Math.round(data.realDisposableIncome)) + '만원';
             document.getElementById('disposable-ratio').textContent = Math.round(data.disposableRatio) + '%';
 
             // 금리 정보
@@ -555,19 +862,32 @@
             const warningSection = document.getElementById('warning-section');
             warningSection.innerHTML = '';
 
-            if (data.disposableIncome < 0) {
+            if (data.realDisposableIncome < 0) {
                 warningSection.innerHTML += `
                     <div class="warning">
-                        <strong>⚠️ 주의:</strong> 가처분 소득이 음수입니다. 실제 대출 실행 시 생활비를 고려한 추가 검토가 필요합니다.
+                        <strong>⚠️ 위험:</strong> 실제 가처분 소득이 음수입니다! 현재 계획으로는 생활이 어려울 수 있습니다.
                     </div>
                 `;
             }
 
-            if (data.disposableRatio < 30) {
+            if (data.disposableRatio < 20) {
                 warningSection.innerHTML += `
                     <div class="warning">
-                        <strong>⚠️ 주의:</strong> 가처분 소득 비율이 ${Math.round(data.disposableRatio)}%로 낮습니다. 
-                        일반적으로 30% 이상 유지를 권장합니다.
+                        <strong>⚠️ 주의:</strong> 가처분 소득 비율이 ${Math.round(data.disposableRatio)}%로 매우 낮습니다. 
+                        최소 30% 이상 유지를 권장합니다.
+                    </div>
+                `;
+            } else if (data.disposableRatio < 30) {
+                warningSection.innerHTML += `
+                    <div class="warning">
+                        <strong>⚠️ 주의:</strong> 가처분 소득 비율이 ${Math.round(data.disposableRatio)}%입니다. 
+                        여유자금 확보를 위해 30% 이상 유지를 권장합니다.
+                    </div>
+                `;
+            } else if (data.disposableRatio >= 50) {
+                warningSection.innerHTML += `
+                    <div class="success-box">
+                        <strong>✅ 양호:</strong> 가처분 소득 비율이 ${Math.round(data.disposableRatio)}%로 건전한 수준입니다.
                     </div>
                 `;
             }
@@ -586,6 +906,31 @@
                     <div class="info-box">
                         <strong>🏛️ 안내:</strong> 정책모기지는 스트레스 DSR 계산에서 제외됩니다. 
                         보금자리론, 디딤돌대출 등을 적극 활용해보세요.
+                    </div>
+                `;
+            }
+
+            if (data.totalAutoPayment > 0) {
+                warningSection.innerHTML += `
+                    <div class="info-box">
+                        <strong>🚗 DSR 3단계 자동차 관련:</strong><br>
+                        • 자동차 대출: DSR에 포함되어 주택대출 한도에 영향<br>
+                        • 장기렌탈/리스: DSR 3단계부터 포함 (기존 2단계까지는 미포함)<br>
+                        • 총 자동차 관련 월납입: ${formatNumber(Math.round(data.totalAutoPayment))}만원<br>
+                        • 모든 자동차 관련 지출이 DSR 한도에 반영됨
+                    </div>
+                `;
+            }
+
+            // 실용적 조언 추가
+            if (data.newPaymentCapacity < 100) {
+                warningSection.innerHTML += `
+                    <div class="warning">
+                        <strong>💡 DSR 한도 개선 방안:</strong><br>
+                        • 기존 대출 일부 상환으로 DSR 여유 확보<br>
+                        • 자동차 대출을 장기렌탈로 전환해도 DSR 3단계부터는 동일하게 반영<br>
+                        • 정책모기지(보금자리론 등) 적극 활용<br>
+                        • 2금융권보다 1금융권 이용 시 DSR 한도 10%p 높음
                     </div>
                 `;
             }
